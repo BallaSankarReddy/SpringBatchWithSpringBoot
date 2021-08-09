@@ -10,12 +10,14 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class JobItemRead implements ItemReader<Object> {
+import com.spring.batch.dto.Teacher;
+
+public class JobItemRead implements ItemReader<Teacher> {
 
 	private String apiURL = "http://localhost:9090/teacher/teacher";
 	private RestTemplate restTemplate;
 	private Integer nextIndex;
-	private List<Object> objs;
+	private List<Teacher> objs;
 
 	public JobItemRead(String apiURL, RestTemplate restTemplate) {
 		super();
@@ -24,15 +26,33 @@ public class JobItemRead implements ItemReader<Object> {
 		this.nextIndex = 0;
 	}
 
-	@Override
-	public Object read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+	
+	
+	private Boolean isDataInitialized() {
+		return this.objs ==null;
+	}
 
+	
+	private List<Teacher> fetchListOfObjects(){
 		
+		ResponseEntity<Teacher []> responceObject = restTemplate.getForEntity(apiURL, Teacher[].class);
+		
+		Teacher[] body = responceObject.getBody();
+		
+		return Arrays.asList(body);
+		
+	}
+
+
+
+	@Override
+	public Teacher read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+
 		if(isDataInitialized()) {
 			objs=fetchListOfObjects();
 			
 		}
-		Object object;
+		Teacher object=null;
 		if(nextIndex < objs.size()) {
 			object=objs.get(nextIndex);
 			nextIndex++;
@@ -42,21 +62,7 @@ public class JobItemRead implements ItemReader<Object> {
 			objs=null;
 		}
 		
-		return objs;
+		return object;
 	}
-	
-	private Boolean isDataInitialized() {
-		return this.objs ==null;
 	}
 
-	
-	private List<Object> fetchListOfObjects(){
-		
-		ResponseEntity<Object[]> responceObject = restTemplate.getForEntity(apiURL, Object[].class);
-		
-		Object[] body = responceObject.getBody();
-		
-		return Arrays.asList(body);
-		
-	}
-}

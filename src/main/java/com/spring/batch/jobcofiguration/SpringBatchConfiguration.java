@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import com.spring.batch.dto.Teacher;
 import com.spring.batch.jobreader.JobItemRead;
 import com.spring.batch.jobwirter.JobItemWritter;
 
@@ -22,17 +23,17 @@ public class SpringBatchConfiguration {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SpringBatchConfiguration.class);
 
 	@Bean
-	public ItemReader<Object> itemReader(org.springframework.core.env.Environment environment,
+	public ItemReader<Teacher> itemReader(org.springframework.core.env.Environment environment,
 			RestTemplate restTemplate) {
 		LOGGER.info("jobItemRead Method calling :>>>");
-		JobItemRead jobItemRead = new JobItemRead(environment.getRequiredProperty("rest.api.url"), restTemplate);
+		ItemReader<Teacher> jobItemRead = new JobItemRead(environment.getRequiredProperty("rest.api.url"), restTemplate);
 		LOGGER.info("jobItemRead URL details :>>>" + jobItemRead);
 		return jobItemRead;
 
 	}
 
 	@Bean
-	public ItemWriter<Object> itemWriter() {
+	public ItemWriter<Teacher> itemWriter() {
 
 		JobItemWritter jobItemWritter = new JobItemWritter();
 		LOGGER.info("jobItemWritter  details :>>>" + jobItemWritter);
@@ -41,10 +42,10 @@ public class SpringBatchConfiguration {
 	
 	
 	@Bean
-	public Step jobStep(ItemReader<Object> itemReader,ItemWriter<Object> itemWriter,StepBuilderFactory stepBuilderFactory) {
+	public Step jobStep(ItemReader<Teacher> itemReader,ItemWriter<Teacher> itemWriter,StepBuilderFactory stepBuilderFactory) {
 		
 		TaskletStep build = stepBuilderFactory.get("OMS_JOB_TYPE")
-						  .chunk(100)
+						  .<Teacher ,Teacher>chunk(100)
 						  .reader(itemReader)
 						  .writer(itemWriter)
 						  .build();

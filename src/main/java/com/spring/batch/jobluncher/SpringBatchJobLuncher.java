@@ -35,7 +35,7 @@ private static final org.slf4j.Logger LOGGER= LoggerFactory.getLogger(SpringBatc
 	
 
 	
-	@Scheduled(cron = "0 1 1 * * *")
+	@Scheduled(cron = "0 * * * * *")
 	public void runSpringBootJobLuncher() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		
 		LOGGER.info("Runing the SpringBatchJobLuncher.runSpringBootJobLuncher method");
